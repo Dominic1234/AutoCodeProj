@@ -1,5 +1,5 @@
 #include <iostream>
-#include <conio.h>
+//#include <conio.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,7 +73,7 @@ int main() {
 	return 0;
 }
 
-int main_menu(){									//Main menu windo
+int main_menu(){								//Main menu window
 	char per;
 	cout << "\t /***********************************************************\\\n";
 	cout << "\t|    __       ___  __     __   __   __    __    __     ___    |\n";
@@ -102,7 +102,7 @@ int main_menu(){									//Main menu windo
 	return 0;
 }
 
-int signup(){
+int signup(){								//Sign up window
 	char mod;
 	sign:
 	cout << "Select:\n";
@@ -211,7 +211,7 @@ int signup(){
 	system("cls");
 	login();
 	return 0;
-}										//Sign up windo
+}
 
 int login() {										//Login Window
 	int count = 0, flag = 0;
@@ -329,7 +329,7 @@ int stud_win(stud stdtmp) {						//Student Window
 	return 0;
 }
 
-int tchr_win(tchr tchtmp) {						//Teacher Windo
+int tchr_win(tchr tchtmp) {						//Teacher Window
 	system("cls");
 	//clrscr();
 	cout << "Welcome, " << tchtmp.name << endl;
@@ -370,7 +370,7 @@ int tchr_win(tchr tchtmp) {						//Teacher Windo
 	return 0;
 }
 
-int submit(char *tmpath, questc qtmp) {						//Compiles and checks submitted progra
+int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted program
 	int res;
 	char stat[100];
 	snprintf(stat, 100, "g++ %s/main.cpp", tmpath);
@@ -390,7 +390,7 @@ int submit(char *tmpath, questc qtmp) {						//Compiles and checks submitted pro
 	return 0;
 }
 
-int adquest(char *path) {						//add questio
+int adquest(char *path) {						//add question
 	char fpath[100];
 	snprintf(fpath, 100, "Assignments/%s.dat", path);
 	ofstream ofile(fpath, ios::app | ios::binary);
