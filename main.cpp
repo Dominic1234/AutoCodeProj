@@ -102,7 +102,116 @@ int main_menu(){									//Main menu windo
 	return 0;
 }
 
-int signup(){}										//Sign up windo
+int signup(){
+	char mod;
+	sign:
+	cout << "Select:\n";
+	cout << "Student (s)\n";
+	cout << "Teacher (t)\n";
+	cout << ">> ";
+	cin >> mod;
+	//clrscr();
+	system("cls");
+	if(mod == 's') {							//Student Sign-up
+		ofstream ofile("std.dat", ios::binary);
+		stud stud1;
+		int count = 0;
+		char tmp;
+		char spass[100];
+		if(!ofile) {
+			cout << "Fopen error!";
+		}
+		char tpass[100];
+		cout << "Enter Real Name: ";
+		cin.ignore();
+		gets(stud1.name);
+		cout << "Enter Username: ";
+		gets(stud1.uname);
+		signpass:
+		cout << "Enter Password: ";
+		do{
+		tmp = getch();
+		if(tmp == '\b' && count > 0){
+			cout << "\b";
+			count--;
+		}
+		else if( tmp != '\b' && tmp != '\r'){
+			cout << '*';
+			stud1.pass[count] = tmp;
+			count++;
+		}
+	}while(tmp != '\r');
+	stud1.pass[count] = '\0';
+	cout << endl;
+	count = 0;
+	cout << "Confirm Password: ";
+	do{
+		tmp = getch();
+		if(tmp == '\b' && count > 0){
+			cout << "\b";
+			count--;
+		}
+		else if( tmp != '\b' && tmp != '\r'){
+			cout << '*';
+			spass[count] = tmp;
+			count++;
+		}
+	}while(tmp != '\r');
+	spass[count] = '\0';
+	cout << endl;
+	if(strcmp(spass, stud1.pass) == 0)
+		ofile.write((char*)&stud1, sizeof(stud1));
+	else {
+		cout << "Passwords not matching!\n";
+		goto signpass;
+	}
+		ofile.close();
+	}
+	else if(mod == 't') {						//Teacher Sign-up
+		ofstream ofile("tchr.dat", ios::binary);
+		tchr tchr1;
+		int count = 0;
+		char tmp;
+		if(!ofile) {
+			cout << "Fopen error!";
+		}
+		char tpass[100];
+		cout << "Enter Real Name: ";
+		gets(tchr1.name);
+		cout << "Enter Username: ";
+		gets(tchr1.uname);
+		cout << "Enter Password: ";
+		do{
+		tmp = getch();
+		if(tmp == '\b' && count > 0){
+			cout << "\b";
+			count--;
+		}
+		else if( tmp != '\b' && tmp != '\r'){
+			cout << '*';
+			tchr1.pass[count] = tmp;
+			count++;
+		}
+	}while(tmp != '\r');
+	tchr1.pass[count] = '\0';
+		cout << "Confirm Password: ";
+		gets(tpass);
+		ofile.write((char*)&tchr1, sizeof(tchr1));
+		ofile.close();
+	}
+	else {
+		cout << "Invalid Option\n";
+		goto sign;
+	}
+	//clrscr();
+	system("cls");
+	cout << "Successful!";
+	getch();
+	//clrscr();
+	system("cls");
+	login();
+	return 0;
+}										//Sign up windo
 
 int login() {										//Login Window
 	int count = 0, flag = 0;
