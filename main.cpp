@@ -1,5 +1,5 @@
 #include <iostream>
-//#include <conio.h>
+#include <conio.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -233,12 +233,12 @@ int login() {										//Login Window
 			cout << "\b";
 			count--;
 		}
-		else if( tmp != '\b' && tmp != '\r'){
+		else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
 			cout << '*';
 			pass[count] = tmp;
 			count++;
 		}
-	}while(tmp != '\r');
+	}while(tmp != '\r' && tmp != '\n');
 	pass[count] = '\0';
 
 	cout << "\nSelect:\n";
