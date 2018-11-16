@@ -16,7 +16,7 @@ public:
 	char name[100];
 	char uname[100];
 	char pass[100];
-	
+
 	account() {
 		name[0] = '\0';
 		uname[0] = '\0';
@@ -29,7 +29,7 @@ public:
 	char quest[500];
 	char ans[100];
 	char tc[100];
-	
+
 	questc() {
 		quest[0] = '\0';
 		ans[0] = '\0';
@@ -42,7 +42,7 @@ public:
 	char clas[3];
 	char path[100];
 	int score;
-	
+
 	stud(){
 		clas[0] = '\0';
 		path[0] = '\0';
@@ -51,9 +51,9 @@ public:
 };
 
 class tchr : public account {
-	public:
+public:
 	char clas[3];
-	
+
 	tchr(){
 		clas[0] = '\0';
 	}
@@ -92,9 +92,9 @@ int main_menu(){								//Main menu window
 	//clrscr();
 	system("cls");
 	if(per == 'l')
-		login();
+	login();
 	else if(per == 's')
-		signup();
+	signup();
 	else{
 		cout << "Invalid option\n";
 		goto menu;
@@ -127,44 +127,46 @@ int signup(){								//Sign up window
 		gets(stud1.name);
 		cout << "Enter Username: ";
 		gets(stud1.uname);
+		cout << "Enter class(E.g.: 12A): ";
+		gets(stud1.clas);
 		signpass:
 		cout << "Enter Password: ";
 		do{
-		tmp = getch();
-		if(tmp == '\b' && count > 0){
-			cout << "\b";
-			count--;
-		}
-		else if( tmp != '\b' && tmp != '\r'){
-			cout << '*';
-			stud1.pass[count] = tmp;
-			count++;
-		}
-	}while(tmp != '\r');
-	stud1.pass[count] = '\0';
-	cout << endl;
-	count = 0;
-	cout << "Confirm Password: ";
-	do{
-		tmp = getch();
-		if(tmp == '\b' && count > 0){
-			cout << "\b";
-			count--;
-		}
-		else if( tmp != '\b' && tmp != '\r'){
-			cout << '*';
-			spass[count] = tmp;
-			count++;
-		}
-	}while(tmp != '\r');
-	spass[count] = '\0';
-	cout << endl;
-	if(strcmp(spass, stud1.pass) == 0)
+			tmp = getch();
+			if(tmp == '\b' && count > 0){
+				cout << "\b";
+				count--;
+			}
+			else if( tmp != '\b' && tmp != '\r'){
+				cout << '*';
+				stud1.pass[count] = tmp;
+				count++;
+			}
+		}while(tmp != '\r');
+		stud1.pass[count] = '\0';
+		cout << endl;
+		count = 0;
+		cout << "Confirm Password: ";
+		do{
+			tmp = getch();
+			if(tmp == '\b' && count > 0){
+				cout << "\b";
+				count--;
+			}
+			else if( tmp != '\b' && tmp != '\r'){
+				cout << '*';
+				spass[count] = tmp;
+				count++;
+			}
+		}while(tmp != '\r');
+		spass[count] = '\0';
+		cout << endl;
+		if(strcmp(spass, stud1.pass) == 0)
 		ofile.write((char*)&stud1, sizeof(stud1));
-	else {
-		cout << "Passwords not matching!\n";
-		goto signpass;
-	}
+		else {
+			cout << "Passwords not matching!\n";
+			goto signpass;
+		}
 		ofile.close();
 	}
 	else if(mod == 't') {						//Teacher Sign-up
@@ -177,23 +179,27 @@ int signup(){								//Sign up window
 		}
 		char tpass[100];
 		cout << "Enter Real Name: ";
+		cin.ignore();
 		gets(tchr1.name);
 		cout << "Enter Username: ";
 		gets(tchr1.uname);
+		cout << "Enter class teaching(E.g.: 12A): ";
+		gets(tchr1.clas);
 		cout << "Enter Password: ";
 		do{
-		tmp = getch();
-		if(tmp == '\b' && count > 0){
-			cout << "\b";
-			count--;
-		}
-		else if( tmp != '\b' && tmp != '\r'){
-			cout << '*';
-			tchr1.pass[count] = tmp;
-			count++;
-		}
-	}while(tmp != '\r');
-	tchr1.pass[count] = '\0';
+			tmp = getch();
+			if(tmp == '\b' && count > 0){
+				cout << "\b";
+				count--;
+			}
+			else if( tmp != '\b' && tmp != '\r'){
+				cout << '*';
+				tchr1.pass[count] = tmp;
+				count++;
+			}
+		}while(tmp != '\r');
+		tchr1.pass[count] = '\0';
+		cout << endl;
 		cout << "Confirm Password: ";
 		gets(tpass);
 		ofile.write((char*)&tchr1, sizeof(tchr1));
@@ -222,7 +228,7 @@ int login() {										//Login Window
 	login:
 	pass[0] = '\0';
 	count = 0;
-	cout << "Login:\n";
+	cout << "Login:\n Press a key to login...";
 	cin.ignore();
 	cout << "Username: ";
 	gets(uname);
@@ -255,7 +261,7 @@ int login() {										//Login Window
 		}
 		while(ifile.read((char*)&stud1,sizeof(stud1)) && flag == 0) {
 			if(strcmp(stud1.uname, uname) == 0 && strcmp(pass, stud1.pass) == 0)
-				flag = 1;
+			flag = 1;
 		}
 		ifile.close();
 	}
@@ -266,8 +272,8 @@ int login() {										//Login Window
 			cout << "Fopen error!";
 		}
 		while(ifile.read((char*)&tchr1,sizeof(tchr1)) && flag  == 0) {
-			if(strcmp(tchr1.uname, uname) == 0 && strcmp(pass, tchr1.pass))
-				flag = 2;
+			if(strcmp(tchr1.uname, uname) == 0 && strcmp(pass, tchr1.pass) == 0)
+			flag = 2;
 		}
 		ifile.close();
 	}
@@ -295,6 +301,9 @@ int stud_win(stud stdtmp) {						//Student Window
 	questc squest;
 	snprintf(fpath, 100, "Assignments/%s.dat", stdtmp.clas);
 	ifstream ifile(fpath, ios::binary);
+	if(!ifile){
+		cout << "Missing assignment file!\n Check path: " << fpath << endl << stdtmp.clas << endl;
+	}
 	for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){}
 	ifile.close();
 	do {
@@ -314,13 +323,13 @@ int stud_win(stud stdtmp) {						//Student Window
 		//clrscr();
 		system("cls");
 		switch (com) {
-		case 's':
+			case 's':
 			submit(stdtmp.path, squest);
 			break;
-		case 'b':
+			case 'b':
 			main_menu();
 			break;
-		case 'e':
+			case 'e':
 			return 0;
 			break;
 		}
@@ -353,15 +362,15 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 		//clrscr();
 		system("cls");
 		switch (com) {
-		case 'a':
+			case 'a':
 			adquest(tchtmp.clas);
 			break;
-		case 'b':
+			case 'b':
 			main_menu();
 			break;
-		case 'd':
+			case 'd':
 			break;
-		case 'r':
+			case 'r':
 			return 0;
 			break;
 		}
@@ -377,7 +386,7 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 	res = system(stat);
 	if(res == 1) {
 		cout << "Error compiling.\n";
-		return -1;	
+		return -1;
 	}
 	else {
 		questc questemp;
@@ -385,7 +394,7 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 		cout << "Successful compilation!\n";
 		system(stat);
 		system("diff");
-		
+
 	}
 	return 0;
 }
@@ -396,6 +405,7 @@ int adquest(char *path) {						//add question
 	ofstream ofile(fpath, ios::app | ios::binary);
 	questc qtmp;
 	cout << "Enter a question: ";
+	cin.ignore();
 	gets(qtmp.quest);
 	cout << "Enter the testcases: ";
 	gets(qtmp.tc);
