@@ -1,9 +1,9 @@
 #include <iostream>
-//#include <conio.h>
+#include <conio.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <process.h>
+#include <process.h>
 #include <fstream>
 
 using namespace std;
@@ -135,12 +135,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r'){
+			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
 				cout << '*';
 				stud1.pass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r');
+		}while(tmp != '\r' && tmp != '\n');
 		stud1.pass[count] = '\0';
 		cout << endl;
 		count = 0;
@@ -151,12 +151,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r'){
+			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
 				cout << '*';
 				spass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r');
+		}while(tmp != '\r' && tmp != '\n');
 		spass[count] = '\0';
 		cout << endl;
 		if(strcmp(spass, stud1.pass) == 0)
@@ -190,12 +190,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r'){
+			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
 				cout << '*';
 				tchr1.pass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r');
+		}while(tmp != '\r' && tmp != '\n');
 		tchr1.pass[count] = '\0';
 		cout << endl;
 		cout << "Confirm Password: ";
@@ -237,12 +237,12 @@ int login() {										//Login Window
 			cout << "\b";
 			count--;
 		}
-		else if( tmp != '\b' && tmp != '\r'){
+		else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
 			cout << '*';
 			pass[count] = tmp;
 			count++;
 		}
-	}while(tmp != '\r');
+	}while(tmp != '\r' && tmp != '\n');
 	pass[count] = '\0';
 
 	cout << "\nSelect:\n";
