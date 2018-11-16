@@ -1,14 +1,12 @@
 #include <iostream>
-#include <conio.h>
+//#include <conio.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <process.h>
+//#include <process.h>
 #include <fstream>
 
 using namespace std;
-
-/* run this program using the console pauser or add your own getch, system("pause") or input loop */
 
 class account {
 public:
@@ -39,7 +37,7 @@ public:
 
 class stud : public account {
 public:
-	char clas[3];
+	char clas[5];
 	char path[100];
 	int score;
 
@@ -137,12 +135,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
+			else if( tmp != '\b' && tmp != '\r'){
 				cout << '*';
 				stud1.pass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r' && tmp != '\n');
+		}while(tmp != '\r');
 		stud1.pass[count] = '\0';
 		cout << endl;
 		count = 0;
@@ -153,12 +151,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
+			else if( tmp != '\b' && tmp != '\r'){
 				cout << '*';
 				spass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r' && tmp != '\n');
+		}while(tmp != '\r');
 		spass[count] = '\0';
 		cout << endl;
 		if(strcmp(spass, stud1.pass) == 0)
@@ -192,12 +190,12 @@ int signup(){								//Sign up window
 				cout << "\b";
 				count--;
 			}
-			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
+			else if( tmp != '\b' && tmp != '\r'){
 				cout << '*';
 				tchr1.pass[count] = tmp;
 				count++;
 			}
-		}while(tmp != '\r' && tmp != '\n');
+		}while(tmp != '\r');
 		tchr1.pass[count] = '\0';
 		cout << endl;
 		cout << "Confirm Password: ";
@@ -239,12 +237,12 @@ int login() {										//Login Window
 			cout << "\b";
 			count--;
 		}
-		else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
+		else if( tmp != '\b' && tmp != '\r'){
 			cout << '*';
 			pass[count] = tmp;
 			count++;
 		}
-	}while(tmp != '\r' && tmp != '\n');
+	}while(tmp != '\r');
 	pass[count] = '\0';
 
 	cout << "\nSelect:\n";
@@ -306,6 +304,7 @@ int stud_win(stud stdtmp) {						//Student Window
 	}
 	for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){}
 	ifile.close();
+	cout << "Question: " << squest.quest << endl;
 	do {
 		if (count > 0) {
 			cout << "Press any key to continue...";
