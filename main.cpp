@@ -6,6 +6,15 @@
 #include <process.h>
 #include <fstream>
 
+#define	DEBUG	printf
+
+#define SUBMIT_DIR	"submit"
+#define TMP_DIR		SUBMIT_DIR"/tmp"
+#define COMP_FILE	TMP_DIR"/a.exe"
+#define TC_FILE		TMP_DIR"/tc.txt"
+#define OUT_FILE	TMP_DIR"/output.txt"
+#define EXP_FILE	TMP_DIR"/expected.txt"
+
 using namespace std;
 
 class account {
@@ -298,6 +307,7 @@ int stud_win(stud stdtmp) {						//Student Window
 	char com = 'y', fpath[100];
 	questc squest;
 	snprintf(fpath, 100, "Assignments/%s.dat", stdtmp.clas);
+	snprintf(stdtmp.path, 8, "submit");
 	ifstream ifile(fpath, ios::binary);
 	if(!ifile){
 		cout << "Missing assignment file!\n Check path: " << fpath << endl << stdtmp.clas << endl;
@@ -309,10 +319,11 @@ int stud_win(stud stdtmp) {						//Student Window
 		if (count > 0) {
 			cout << "Press any key to continue...";
 			getch();
+			getch();
 			//clrscr();
 			system("cls");
 		}
-		cout << "Place the cpp file in " << stdtmp.path << " before submitting.\n";
+		cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
 		cout << "\t\tMenu:\n";
 		cout << "Submit: (s)\n";
 		cout << "Back: (b)\n";
@@ -381,19 +392,39 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted program
 	int res;
 	char stat[100];
-	snprintf(stat, 100, "g++ %s/main.cpp", tmpath);
+	cout << "Compiling your program ...\n";
+	snprintf(stat, 100, "g++ -o %s %s/main.cpp", COMP_FILE, tmpath);
+	DEBUG("Dbg> Executing %s\n", stat);
 	res = system(stat);
 	if(res == 1) {
 		cout << "Error compiling.\n";
 		return -1;
 	}
 	else {
-		questc questemp;
-		snprintf(stat, 100, "ans.txt << ./a.out << %s", questemp.tc);
-		cout << "Successful compilation!\n";
-		system(stat);
-		system("diff");
-
+		ofstream ofile(TC_FILE, ios::binary);
+		if(!ofile) {
+			cout << "Fopen error!";
+		}
+		ofile.write((char *)qtmp.tc, strlen(qtmp.tc)+1);
+		ofile.close();
+		ofstream ofile2(EXP_FILE, ios::binary);
+		if(!ofile2) {
+			cout << "Fopen error!";
+		}
+		ofile2.write((char *)qtmp.ans, strlen(qtmp.ans)+1);
+		ofile2.close();
+		cout << "Compiled. Executing your program with test case ...\n";
+		snprintf(stat, 100, "%s > %s < %s", COMP_FILE, OUT_FILE, TC_FILE);
+		DEBUG("Dbg> Executing %s\n", stat);
+		res = system(stat);
+		cout << "Executed. Comparing the output ...\n";
+		snprintf(stat, 100, "diff %s %s", OUT_FILE, EXP_FILE);
+		res = system(stat);
+		if (res == 0) {
+			cout << "Matches !!\n";
+		} else {
+			cout << "Did not match !\n";
+		}
 	}
 	return 0;
 }
