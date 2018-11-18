@@ -302,7 +302,7 @@ int stud_win(stud stdtmp) {						//Student Window
 	if(!ifile){
 		cout << "Missing assignment file!\n Check path: " << fpath << endl << stdtmp.clas << endl;
 	}
-	for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){}
+	for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
 	ifile.close();
 	cout << "Question: " << squest.quest << endl;
 	do {
