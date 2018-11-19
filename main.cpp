@@ -14,6 +14,7 @@
 #define TC_FILE		TMP_DIR"/tc.txt"
 #define OUT_FILE	TMP_DIR"/output.txt"
 #define EXP_FILE	TMP_DIR"/expected.txt"
+#define DIFF_CMD	"diff -w"
 
 using namespace std;
 
@@ -405,20 +406,20 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 		if(!ofile) {
 			cout << "Fopen error!";
 		}
-		ofile.write((char *)qtmp.tc, strlen(qtmp.tc)+1);
+		ofile.write((char *)qtmp.tc, strlen(qtmp.tc));
 		ofile.close();
 		ofstream ofile2(EXP_FILE, ios::binary);
 		if(!ofile2) {
 			cout << "Fopen error!";
 		}
-		ofile2.write((char *)qtmp.ans, strlen(qtmp.ans)+1);
+		ofile2.write((char *)qtmp.ans, strlen(qtmp.ans));
 		ofile2.close();
 		cout << "Compiled. Executing your program with test case ...\n";
 		snprintf(stat, 100, "%s > %s < %s", COMP_FILE, OUT_FILE, TC_FILE);
 		DEBUG("Dbg> Executing %s\n", stat);
 		res = system(stat);
 		cout << "Executed. Comparing the output ...\n";
-		snprintf(stat, 100, "diff %s %s", OUT_FILE, EXP_FILE);
+		snprintf(stat, 100, "%s %s %s", DIFF_CMD, OUT_FILE, EXP_FILE);
 		res = system(stat);
 		if (res == 0) {
 			cout << "Matches !!\n";
