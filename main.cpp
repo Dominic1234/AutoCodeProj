@@ -8,13 +8,10 @@
 
 #define	DEBUG	printf
 
-#define SUBMIT_DIR	"submit"
-#define TMP_DIR		SUBMIT_DIR"/tmp"
-#define COMP_FILE	TMP_DIR"/a.exe"
-#define TC_FILE		TMP_DIR"/tc.txt"
-#define OUT_FILE	TMP_DIR"/output.txt"
-#define EXP_FILE	TMP_DIR"/expected.txt"
-#define DIFF_CMD	"diff -w"
+#define COMP_FILE	"submit\\tmp\\a.exe"
+#define TC_FILE		"submit\\tmp\\tc.txt"
+#define OUT_FILE	"submit\\tmp\\output.txt"
+#define EXP_FILE	"submit\\tmp\\expected.txt"
 
 using namespace std;
 
@@ -236,7 +233,7 @@ int login() {										//Login Window
 	login:
 	pass[0] = '\0';
 	count = 0;
-	cout << "Login:\n Press a key to login...";
+	cout << "Login:\n Press a key to login...\n";
 	cin.ignore();
 	cout << "Username: ";
 	gets(uname);
@@ -304,19 +301,20 @@ int stud_win(stud stdtmp) {						//Student Window
 	system("cls");
 	//clrscr();
 	cout << "Welcome, " << stdtmp.name << endl;
-	int count = 0;
+	int count = 0, res = 0;
 	char com = 'y', fpath[100];
 	questc squest;
 	snprintf(fpath, 100, "Assignments/%s.dat", stdtmp.clas);
 	snprintf(stdtmp.path, 8, "submit");
-	ifstream ifile(fpath, ios::binary);
-	if(!ifile){
-		cout << "Missing assignment file!\n Check path: " << fpath << endl << stdtmp.clas << endl;
-	}
-	for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
-	ifile.close();
-	cout << "Question: " << squest.quest << endl;
-	do {
+	do{
+		ifstream ifile(fpath, ios::binary);
+		if(!ifile){
+			cout << "Missing assignment file!\n Check path: " << fpath << endl;
+		}
+		for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
+		ifile.close();
+		cout << "Score: " << stdtmp.score << endl;
+		cout << "Question: " << squest.quest << endl;
 		if (count > 0) {
 			cout << "Press any key to continue...";
 			getch();
@@ -335,7 +333,9 @@ int stud_win(stud stdtmp) {						//Student Window
 		system("cls");
 		switch (com) {
 			case 's':
-			submit(stdtmp.path, squest);
+			res = submit(stdtmp.path, squest);
+			if(res == 0)
+				stdtmp.score++;
 			break;
 			case 'b':
 			main_menu();
@@ -392,9 +392,9 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 
 int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted program
 	int res;
-	char stat[100];
+	char stat[500];
 	cout << "Compiling your program ...\n";
-	snprintf(stat, 100, "g++ -o %s %s/main.cpp", COMP_FILE, tmpath);
+	snprintf(stat, 500, "g++ -o %s %s/main.cpp -L /MinGW64/lib32 -L /MinGW64/x86_64-w64-mingw32/lib32 -static-libgcc -m32", COMP_FILE, tmpath);
 	DEBUG("Dbg> Executing %s\n", stat);
 	res = system(stat);
 	if(res == 1) {
@@ -406,25 +406,40 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 		if(!ofile) {
 			cout << "Fopen error!";
 		}
-		ofile.write((char *)qtmp.tc, strlen(qtmp.tc));
+		ofile.write((char *)qtmp.tc, strlen(qtmp.tc)+1);
 		ofile.close();
 		ofstream ofile2(EXP_FILE, ios::binary);
 		if(!ofile2) {
 			cout << "Fopen error!";
 		}
-		ofile2.write((char *)qtmp.ans, strlen(qtmp.ans));
+		ofile2.write((char *)qtmp.ans, strlen(qtmp.ans)+1);
 		ofile2.close();
 		cout << "Compiled. Executing your program with test case ...\n";
 		snprintf(stat, 100, "%s > %s < %s", COMP_FILE, OUT_FILE, TC_FILE);
 		DEBUG("Dbg> Executing %s\n", stat);
 		res = system(stat);
 		cout << "Executed. Comparing the output ...\n";
-		snprintf(stat, 100, "%s %s %s", DIFF_CMD, OUT_FILE, EXP_FILE);
-		res = system(stat);
+		ifstream ifile(OUT_FILE);
+		ifstream ifile2(EXP_FILE);
+		if(!ifile || !ifile2) {
+			cout << "Open file error\n";
+			return -1;
+		}
+		char ans[100], exp[100];
+		res = 0;
+		while(ifile && ifile2) {
+			ifile.getline(ans, 100, '\n');
+			ifile2.getline(exp, 100, '\0');
+			if(strcmpi(ans, exp) != 0)
+				res = 1;
+		}
 		if (res == 0) {
 			cout << "Matches !!\n";
-		} else {
+			return 0;
+		} 
+		else {
 			cout << "Did not match !\n";
+			return -1;
 		}
 	}
 	return 0;
