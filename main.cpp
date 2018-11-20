@@ -6,8 +6,6 @@
 #include <process.h>
 #include <fstream>
 
-#define	DEBUG	printf
-
 #define COMP_FILE	"submit\\tmp\\a.exe"
 #define TC_FILE		"submit\\tmp\\tc.txt"
 #define OUT_FILE	"submit\\tmp\\output.txt"
@@ -17,7 +15,6 @@ using namespace std;
 
 class account {
 public:
-	int sno;
 	char name[100];
 	char uname[100];
 	char pass[100];
@@ -53,6 +50,29 @@ public:
 		path[0] = '\0';
 		score = 0;
 	}
+	
+	int update(stud tmp){
+		cout << "Saving...\n";
+		getch();
+		stud stcmp;
+		ifstream ifile("std.dat", ios::binary);
+		ofstream ofile("temp.dat", ios::binary);
+		if(!ifile) {
+			cout << "File open error\n";
+			return -1;
+		}
+		while(ifile.read((char*)&stcmp, sizeof(stud))) {
+			if(strcmpi(stcmp.name, tmp.name) == 0)
+				ofile.write((char*)&tmp, sizeof(stud));
+			else 
+				ofile.write((char*)&stcmp, sizeof(stud));
+		}
+		ifile.close();
+		ofile.close();
+		remove("std.dat");
+		rename("temp.dat", "std.dat");
+		return 0;
+	}
 };
 
 class tchr : public account {
@@ -71,6 +91,7 @@ int tchr_win(tchr tchtmp);
 int main_menu();
 int submit(char *tmpath, questc qtmp);
 int adquest(char *path);
+int dispstuds(char *grade);
 
 int main() {
 	main_menu();
@@ -311,10 +332,6 @@ int stud_win(stud stdtmp) {						//Student Window
 		if(!ifile){
 			cout << "Missing assignment file!\n Check path: " << fpath << endl;
 		}
-		for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
-		ifile.close();
-		cout << "Score: " << stdtmp.score << endl;
-		cout << "Question: " << squest.quest << endl;
 		if (count > 0) {
 			cout << "Press any key to continue...";
 			getch();
@@ -322,8 +339,12 @@ int stud_win(stud stdtmp) {						//Student Window
 			//clrscr();
 			system("cls");
 		}
+		for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
+		ifile.close();
+		cout << "Score: " << stdtmp.score << endl;
+		cout << "Question: " << squest.quest << endl;
 		cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
-		cout << "\t\tMenu:\n";
+		cout << "\n\t\tMenu:\n";
 		cout << "Submit: (s)\n";
 		cout << "Back: (b)\n";
 		cout << "Exit: (e)\n";
@@ -338,7 +359,8 @@ int stud_win(stud stdtmp) {						//Student Window
 				stdtmp.score++;
 			break;
 			case 'b':
-			main_menu();
+				stdtmp.update(stdtmp);
+				main_menu();
 			break;
 			case 'e':
 			return 0;
@@ -346,6 +368,7 @@ int stud_win(stud stdtmp) {						//Student Window
 		}
 		count++;
 	} while (com != 'e');
+	stdtmp.update(stdtmp);
 	return 0;
 }
 
@@ -374,12 +397,13 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 		system("cls");
 		switch (com) {
 			case 'a':
-			adquest(tchtmp.clas);
+				adquest(tchtmp.clas);
 			break;
 			case 'b':
-			main_menu();
+				main_menu();
 			break;
 			case 'd':
+				dispstuds(tchtmp.clas);
 			break;
 			case 'r':
 			return 0;
@@ -395,7 +419,6 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 	char stat[500];
 	cout << "Compiling your program ...\n";
 	snprintf(stat, 500, "g++ -o %s %s/main.cpp -L /MinGW64/lib32 -L /MinGW64/x86_64-w64-mingw32/lib32 -static-libgcc -m32", COMP_FILE, tmpath);
-	DEBUG("Dbg> Executing %s\n", stat);
 	res = system(stat);
 	if(res == 1) {
 		cout << "Error compiling.\n";
@@ -416,7 +439,6 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 		ofile2.close();
 		cout << "Compiled. Executing your program with test case ...\n";
 		snprintf(stat, 100, "%s > %s < %s", COMP_FILE, OUT_FILE, TC_FILE);
-		DEBUG("Dbg> Executing %s\n", stat);
 		res = system(stat);
 		cout << "Executed. Comparing the output ...\n";
 		ifstream ifile(OUT_FILE);
@@ -459,5 +481,23 @@ int adquest(char *path) {						//add question
 	gets(qtmp.ans);
 	ofile.write((char*)&qtmp, sizeof(qtmp));
 	ofile.close();
+	return 0;
+}
+
+int dispstuds(char *grade) {
+	ifstream ifile("std.dat", ios::binary);
+	stud tmp;
+	if(!ifile) {
+		cout << "File open error\n";
+		return -1;
+	}
+	while(ifile.read((char*)&tmp, sizeof(stud))) {
+		if(strcmpi(tmp.clas, grade) == 0) {
+			cout << "Name: " << tmp.name << endl;
+			cout << "Score: " << tmp.score << endl;
+		}
+		cout << endl;
+	}
+	ifile.close();
 	return 0;
 }
