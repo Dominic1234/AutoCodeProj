@@ -41,7 +41,7 @@ public:
 
 class stud : public account {
 public:
-	char clas[5];
+	char clas[4];
 	char path[100];
 	int score;
 
@@ -91,7 +91,7 @@ int tchr_win(tchr tchtmp);
 int main_menu();
 int submit(char *tmpath, questc qtmp);
 int adquest(char *path);
-int dispstuds(char *grade);
+int dispstuds(char grade[4]);
 
 int main() {
 	main_menu();
@@ -99,32 +99,41 @@ int main() {
 	return 0;
 }
 
-int main_menu(){								//Main menu window
-	char per;
-	cout << "\t /***********************************************************\\\n";
-	cout << "\t|    __       ___  __     __   __   __    __    __     ___    |\n";
-	cout << "\t|   /  \\ |  |  |  |  |   |    |  | |  \\  |        |   |   |   |\n";
-	cout << "\t|   |--| |  |  |  |  |   |    |  | |  |  |--    --  @ |   |   |\n";
-	cout << "\t|   |  | |__|  |  |__|   |__  |__| |_ /  |__   |__    |___|   |\n";
-	cout << "\t \\___________________________________________________________/\n";
+int main_menu(){
+	char com;
+	do{								//Main menu window
+		char per;
+		cout << "\t /***********************************************************\\\n";
+		cout << "\t|    __       ___  __     __   __   __    __    __     ___    |\n";
+		cout << "\t|   /  \\ |  |  |  |  |   |    |  | |  \\  |        |   |   |   |\n";
+		cout << "\t|   |--| |  |  |  |  |   |    |  | |  |  |--    --  @ |   |   |\n";
+		cout << "\t|   |  | |__|  |  |__|   |__  |__| |_ /  |__   |__    |___|   |\n";
+		cout << "\t \\___________________________________________________________/\n";
 
-	cout << "\n\n\n\t\t\tPress any key to begin...";
-	getch();
-	//clrscr();
+		cout << "\n\n\n\t\t\tPress l to login...\n";
+		cout << "\t\t\tPress e to Quit...\n";
+		cout << ">>";
+		cin >> com;
+		cout << com << endl;
+		if(com == 'l') {
+			//clrscr();
+			system("cls");
+			menu:
+			cout << "Login(l)\nSign Up(s)\n>> ";
+			cin >> per;
+			//clrscr();
+			system("cls");
+			if(per == 'l')
+				login();
+			else if(per == 's')
+				signup();
+			else{
+				cout << "Invalid option\n";
+				goto menu;
+			}
+		}
+	} while(com != 'e');
 	system("cls");
-	menu:
-	cout << "Login(l)\nSign Up(s)\n>> ";
-	cin >> per;
-	//clrscr();
-	system("cls");
-	if(per == 'l')
-	login();
-	else if(per == 's')
-	signup();
-	else{
-		cout << "Invalid option\n";
-		goto menu;
-	}
 	return 0;
 }
 
@@ -346,7 +355,6 @@ int stud_win(stud stdtmp) {						//Student Window
 		cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
 		cout << "\n\t\tMenu:\n";
 		cout << "Submit: (s)\n";
-		cout << "Back: (b)\n";
 		cout << "Exit: (e)\n";
 		cout << "Enter Command: ";
 		cin >> com;
@@ -358,9 +366,6 @@ int stud_win(stud stdtmp) {						//Student Window
 			if(res == 0)
 				stdtmp.score++;
 			break;
-			case 'b':
-				stdtmp.update(stdtmp);
-				main_menu();
 			break;
 			case 'e':
 			return 0;
@@ -398,9 +403,6 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 		switch (com) {
 			case 'a':
 				adquest(tchtmp.clas);
-			break;
-			case 'b':
-				main_menu();
 			break;
 			case 'd':
 				dispstuds(tchtmp.clas);
@@ -484,7 +486,7 @@ int adquest(char *path) {						//add question
 	return 0;
 }
 
-int dispstuds(char *grade) {
+int dispstuds(char grade[4]) {		//Display Student Details
 	ifstream ifile("std.dat", ios::binary);
 	stud tmp;
 	if(!ifile) {
@@ -492,12 +494,17 @@ int dispstuds(char *grade) {
 		return -1;
 	}
 	while(ifile.read((char*)&tmp, sizeof(stud))) {
+		cout << "Name: " << tmp.name << endl;
+		cout << "Score: " << tmp.score << endl;
+		cout << "Class: " << tmp.clas << endl;
+		cout << "MyClass: " << grade << endl;
 		if(strcmpi(tmp.clas, grade) == 0) {
 			cout << "Name: " << tmp.name << endl;
 			cout << "Score: " << tmp.score << endl;
 		}
 		cout << endl;
 	}
+	cin.ignore();
 	ifile.close();
 	return 0;
 }
