@@ -354,7 +354,7 @@ int stud_win(stud stdtmp) {						//Student Window
 			cout << "Question: " << squest.quest << endl;
 			cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
 		}
-		cout << "\n\t\tMenu:\n";
+		cout << "\n\t======= Menu: =======\n";
 		if (qRemaining) {
 			cout << "Submit: (s)\n";
 		}
@@ -392,12 +392,11 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 			getch();
 			system("cls");
 		}
-		cout << "\t\tMenu:\n";
+		cout << "\t======= Menu: =======\n";
 		cout << "Display Student Details: (d)\n";
 		cout << "Add question: (a)\n";
 		cout << "List questions: (l)\n";
 		cout << "Remove last question: (r)\n";
-		cout << "Back: (b)\n";
 		cout << "Exit: (e)\n";
 		cout << "Enter Command: ";
 		cin >> com;
@@ -416,8 +415,6 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 			case 'r':
 				removeLastQ(tchtmp.clas);
 			break;
-			case 'b':
-				return 0;
 		}
 		count++;
 	} while (com != 'e');
@@ -505,15 +502,12 @@ int dispstuds(char grade[4]) {		//Display Student Details
 		cout << "File open error\n";
 		return -1;
 	}
+	cout << "Students in my Class: " << grade << endl;
 	while(ifile.read((char*)&tmp, sizeof(stud))) {
-		cout << "Name: " << tmp.name << endl;
-		cout << "Username: " << tmp.uname << endl;
-		cout << "Score: " << tmp.score << endl;
-		cout << "Class: " << tmp.clas << endl;
-		cout << "MyClass: " << grade << endl;
 		if(strcmpi(tmp.clas, grade) == 0) {
 			cout << "Name: " << tmp.name << endl;
-			cout << "Score: " << tmp.score << endl;
+			cout << "\tUsername: " << tmp.uname << endl;
+			cout << "\tScore: " << tmp.score << endl;
 		}
 		cout << endl;
 	}
@@ -565,7 +559,7 @@ void listQs(char *grade) {
 		ifile.read((char *)&squest, sizeof(questc));
 		if (ifile.eof())
 			break;
-		cout << "==== Question # " << qNo <<" =====\n";
+		cout << "==== Question # " << qNo + 1 <<" =====\n";
 		cout << "\tQuestion:  " << squest.quest <<"\n";
 		cout << "\tTest Case: " << squest.tc <<"\n";
 		cout << "\tAnswer:    " << squest.ans <<"\n";
