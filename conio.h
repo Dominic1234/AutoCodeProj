@@ -2,6 +2,20 @@
 #include <unistd.h>
 #include <termios.h>
 
+#define strcmpi strcmp
+#undef CFLAGS
+#define CFLAGS ""
+
+#undef COMP_FILE
+#undef TC_FILE
+#undef OUT_FILE
+#undef EXP_FILE
+
+#define COMP_FILE	"submit/tmp/a.exe"
+#define TC_FILE		"submit/tmp/tc.txt"
+#define OUT_FILE	"submit/tmp/output.txt"
+#define EXP_FILE	"submit/tmp/expected.txt"
+
 int getch() {
 	int c;
 	struct termios old, mod;
