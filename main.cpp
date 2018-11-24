@@ -1,5 +1,4 @@
 #include <iostream>
-#include <conio.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +9,9 @@
 #define TC_FILE		"submit\\tmp\\tc.txt"
 #define OUT_FILE	"submit\\tmp\\output.txt"
 #define EXP_FILE	"submit\\tmp\\expected.txt"
+#define CFLAGS		"-L /MinGW64/lib32 -L /MinGW64/x86_64-w64-mingw32/lib32 -static-libgcc -m32"
+
+#include <conio.h>
 
 using namespace std;
 
@@ -331,7 +333,7 @@ int stud_win(stud stdtmp) {						//Student Window
 	system("cls");
 	//clrscr();
 	cout << "Welcome, " << stdtmp.name << endl;
-	int count = 0, res = 0;
+	int count = 0, res = 0, qRemaining = 0;
 	char com = 'y', fpath[100];
 	questc squest;
 	snprintf(fpath, 100, "Assignments/%s.dat", stdtmp.clas);
@@ -348,28 +350,47 @@ int stud_win(stud stdtmp) {						//Student Window
 			//clrscr();
 			system("cls");
 		}
-		for(int cnt = 0; cnt <= stdtmp.score; ifile.read((char*)&squest, sizeof(squest))){cnt++;}
-		ifile.close();
+		// Find out how many questions are available
+		ifile.seekg (0, ifile.end);
+		int numQ = ifile.tellg()/sizeof(squest);
+		// Check if any questions remaining beyond what the student has already done
+		if (stdtmp.score <= numQ) {
+			qRemaining = 1;
+		} else {
+			qRemaining = 0;
+		}
+
+		if (qRemaining) {
+			ifile.seekg(stdtmp.score*sizeof(squest));
+			ifile.read((char*)&squest, sizeof(squest));
+		} else
+			printf ("All questions solved\n");
 		cout << "Score: " << stdtmp.score << endl;
-		cout << "Question: " << squest.quest << endl;
-		cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
+		if (qRemaining) {
+			cout << "Question: " << squest.quest << endl;
+			cout << "Place the main.cpp file in " << stdtmp.path << " before submitting.\n";
+		}
 		cout << "\n\t\tMenu:\n";
-		cout << "Submit: (s)\n";
+		if (qRemaining) {
+			cout << "Submit: (s)\n";
+		}
 		cout << "Exit: (e)\n";
 		cout << "Enter Command: ";
 		cin >> com;
 		//clrscr();
 		system("cls");
+		ifile.close();
 		switch (com) {
 			case 's':
-			res = submit(stdtmp.path, squest);
-			if(res == 0)
-				stdtmp.score++;
-			break;
-			break;
+				if (qRemaining) {
+					res = submit(stdtmp.path, squest);
+					if(res == 0)
+						stdtmp.score++;
+						stdtmp.update(stdtmp);
+				}
+				break;
 			case 'e':
-			return 0;
-			break;
+				return 0;
 		}
 		count++;
 	} while (com != 'e');
@@ -420,9 +441,9 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 	int res;
 	char stat[500];
 	cout << "Compiling your program ...\n";
-	snprintf(stat, 500, "g++ -o %s %s/main.cpp -L /MinGW64/lib32 -L /MinGW64/x86_64-w64-mingw32/lib32 -static-libgcc -m32", COMP_FILE, tmpath);
+	snprintf(stat, 500, "g++ -o %s %s/main.cpp %s", COMP_FILE, tmpath, CFLAGS);
 	res = system(stat);
-	if(res == 1) {
+	if(res > 1) {
 		cout << "Error compiling.\n";
 		return -1;
 	}
@@ -442,6 +463,10 @@ int submit(char *tmpath, questc qtmp) {					//Compiles and checks submitted prog
 		cout << "Compiled. Executing your program with test case ...\n";
 		snprintf(stat, 100, "%s > %s < %s", COMP_FILE, OUT_FILE, TC_FILE);
 		res = system(stat);
+		if (res > 0) {
+			cout << "Error executing\n";
+			return -1;
+		}
 		cout << "Executed. Comparing the output ...\n";
 		ifstream ifile(OUT_FILE);
 		ifstream ifile2(EXP_FILE);
