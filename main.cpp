@@ -94,6 +94,10 @@ int main_menu();
 int submit(char *tmpath, questc qtmp);
 int adquest(char *path);
 int dispstuds(char grade[4]);
+void listQs(char *grade);
+int getNumQuestions (char *grade);
+int readNextQ (char *grade, int lastQDone, char *buf, int bufSize);
+void removeLastQ(char *grade);
 
 int main() {
 	main_menu();
@@ -104,6 +108,8 @@ int main() {
 int main_menu(){
 	char com;
 	do{								//Main menu window
+		menu:
+		system("cls");
 		char per;
 		cout << "\t /***********************************************************\\\n";
 		cout << "\t|    __       ___  __     __   __   __    __    __     ___    |\n";
@@ -113,29 +119,23 @@ int main_menu(){
 		cout << "\t \\___________________________________________________________/\n";
 
 		cout << "\n\n\n\t\t\tPress l to login...\n";
+		cout << "\t\t\tPress s to sign-up...\n";
 		cout << "\t\t\tPress e to Quit...\n";
 		cout << ">>";
 		cin >> com;
 		cout << com << endl;
-		if(com == 'l') {
-			//clrscr();
-			system("cls");
-			menu:
-			cout << "Login(l)\nSign Up(s)\n>> ";
-			cin >> per;
-			//clrscr();
-			system("cls");
-			if(per == 'l')
-				login();
-			else if(per == 's')
-				signup();
-			else{
-				cout << "Invalid option\n";
-				goto menu;
-			}
+		if(com == 'l')
+			login();
+		else if(com == 's')
+			signup();
+		else if(com == 'e')
+			break;
+		else{
+			cout << "Invalid option\n";
+			goto menu;
 		}
+		cin.ignore();
 	} while(com != 'e');
-	system("cls");
 	return 0;
 }
 
@@ -147,7 +147,6 @@ int signup(){								//Sign up window
 	cout << "Teacher (t)\n";
 	cout << ">> ";
 	cin >> mod;
-	//clrscr();
 	system("cls");
 	if(mod == 's') {							//Student Sign-up
 		ofstream ofile("std.dat", ios::binary);
@@ -198,9 +197,11 @@ int signup(){								//Sign up window
 		}while(tmp != '\r' && tmp != '\n');
 		spass[count] = '\0';
 		cout << endl;
-		if(strcmp(spass, stud1.pass) == 0)
-		ofile.write((char*)&stud1, sizeof(stud1));
-		else {
+		if(strcmp(spass, stud1.pass) == 0) {
+			// Append to file
+			ofile.seekp (0, ofile.end);
+			ofile.write((char*)&stud1, sizeof(stud1));
+		} else {
 			cout << "Passwords not matching!\n";
 			goto signpass;
 		}
@@ -246,13 +247,9 @@ int signup(){								//Sign up window
 		cout << "Invalid Option\n";
 		goto sign;
 	}
-	//clrscr();
 	system("cls");
 	cout << "Successful!";
 	getch();
-	//clrscr();
-	system("cls");
-	login();
 	return 0;
 }
 
@@ -265,7 +262,6 @@ int login() {										//Login Window
 	login:
 	pass[0] = '\0';
 	count = 0;
-	cout << "Login:\n Press a key to login...\n";
 	cin.ignore();
 	cout << "Username: ";
 	gets(uname);
@@ -315,7 +311,6 @@ int login() {										//Login Window
 		ifile.close();
 	}
 	if(flag == 0) {
-		//clrscr();
 		system("cls");
 		cout << "Invalid Username or Password\n";
 		goto login;
@@ -331,40 +326,29 @@ int login() {										//Login Window
 
 int stud_win(stud stdtmp) {						//Student Window
 	system("cls");
-	//clrscr();
 	cout << "Welcome, " << stdtmp.name << endl;
 	int count = 0, res = 0, qRemaining = 0;
-	char com = 'y', fpath[100];
+	char com = 'y';
 	questc squest;
-	snprintf(fpath, 100, "Assignments/%s.dat", stdtmp.clas);
 	snprintf(stdtmp.path, 8, "submit");
 	do{
-		ifstream ifile(fpath, ios::binary);
-		if(!ifile){
-			cout << "Missing assignment file!\n Check path: " << fpath << endl;
-		}
 		if (count > 0) {
 			cout << "Press any key to continue...";
 			getch();
 			getch();
-			//clrscr();
 			system("cls");
 		}
 		// Find out how many questions are available
-		ifile.seekg (0, ifile.end);
-		int numQ = ifile.tellg()/sizeof(squest);
+		int numQ = getNumQuestions (stdtmp.clas);
 		// Check if any questions remaining beyond what the student has already done
-		if (stdtmp.score <= numQ) {
+		if (stdtmp.score < numQ) {
 			qRemaining = 1;
+			readNextQ (stdtmp.clas, stdtmp.score, (char *)&squest, sizeof(squest));
 		} else {
 			qRemaining = 0;
+			printf ("All questions solved\n");
 		}
 
-		if (qRemaining) {
-			ifile.seekg(stdtmp.score*sizeof(squest));
-			ifile.read((char*)&squest, sizeof(squest));
-		} else
-			printf ("All questions solved\n");
 		cout << "Score: " << stdtmp.score << endl;
 		if (qRemaining) {
 			cout << "Question: " << squest.quest << endl;
@@ -377,16 +361,15 @@ int stud_win(stud stdtmp) {						//Student Window
 		cout << "Exit: (e)\n";
 		cout << "Enter Command: ";
 		cin >> com;
-		//clrscr();
 		system("cls");
-		ifile.close();
 		switch (com) {
 			case 's':
 				if (qRemaining) {
 					res = submit(stdtmp.path, squest);
-					if(res == 0)
+					if(res == 0) {
 						stdtmp.score++;
 						stdtmp.update(stdtmp);
+					}
 				}
 				break;
 			case 'e':
@@ -400,7 +383,6 @@ int stud_win(stud stdtmp) {						//Student Window
 
 int tchr_win(tchr tchtmp) {						//Teacher Window
 	system("cls");
-	//clrscr();
 	cout << "Welcome, " << tchtmp.name << endl;
 	int count = 0;
 	char com = 'y';
@@ -408,29 +390,34 @@ int tchr_win(tchr tchtmp) {						//Teacher Window
 		if (count > 0) {
 			cout << "Press any key to continue...";
 			getch();
-			//clrscr();
 			system("cls");
 		}
 		cout << "\t\tMenu:\n";
 		cout << "Display Student Details: (d)\n";
 		cout << "Add question: (a)\n";
-		cout << "Remove question: (r)\n";
+		cout << "List questions: (l)\n";
+		cout << "Remove last question: (r)\n";
 		cout << "Back: (b)\n";
 		cout << "Exit: (e)\n";
 		cout << "Enter Command: ";
 		cin >> com;
-		//clrscr();
 		system("cls");
 		switch (com) {
 			case 'a':
 				adquest(tchtmp.clas);
 			break;
+			case 'l':
+				listQs(tchtmp.clas);
+				cin.ignore();
+			break;
 			case 'd':
 				dispstuds(tchtmp.clas);
 			break;
 			case 'r':
-			return 0;
+				removeLastQ(tchtmp.clas);
 			break;
+			case 'b':
+				return 0;
 		}
 		count++;
 	} while (com != 'e');
@@ -520,6 +507,7 @@ int dispstuds(char grade[4]) {		//Display Student Details
 	}
 	while(ifile.read((char*)&tmp, sizeof(stud))) {
 		cout << "Name: " << tmp.name << endl;
+		cout << "Username: " << tmp.uname << endl;
 		cout << "Score: " << tmp.score << endl;
 		cout << "Class: " << tmp.clas << endl;
 		cout << "MyClass: " << grade << endl;
@@ -532,4 +520,85 @@ int dispstuds(char grade[4]) {		//Display Student Details
 	cin.ignore();
 	ifile.close();
 	return 0;
+}
+
+int getNumQuestions (char *grade) {
+	char fpath[100];
+	snprintf(fpath, sizeof(fpath), "Assignments/%s.dat", grade);
+	ifstream ifile(fpath, ios::binary);
+	if(!ifile){
+		cout << "Missing assignment file!\n Check path: " << fpath << endl;
+	}
+	// Find out how many questions are available
+	ifile.seekg (0, ifile.end);
+	int numQ = ifile.tellg()/sizeof(questc);
+	ifile.close();
+	return numQ;
+}
+
+int readNextQ (char *grade, int lastQDone, char *buf, int bufSize) {
+	char fpath[100];
+	snprintf(fpath, sizeof(fpath), "Assignments/%s.dat", grade);
+	ifstream ifile(fpath, ios::binary);
+	if(!ifile){
+		cout << "Missing assignment file!\n Check path: " << fpath << endl;
+	}
+	// Read the next question
+	ifile.seekg(lastQDone*sizeof(questc));
+	ifile.read(buf, bufSize);
+	ifile.close();
+	return 0;
+}
+
+void listQs(char *grade) {
+	questc squest;
+	char fpath[100];
+	int qNo = 0;
+	snprintf(fpath, sizeof(fpath), "Assignments/%s.dat", grade);
+	cout << "Total " << getNumQuestions(grade) << " questions\n";
+	ifstream ifile(fpath, ios::binary);
+	if(!ifile){
+		cout << "Missing assignment file!\n Check path: " << fpath << endl;
+		return;
+	}
+	while (1) {
+		ifile.read((char *)&squest, sizeof(questc));
+		if (ifile.eof())
+			break;
+		cout << "==== Question # " << qNo <<" =====\n";
+		cout << "\tQuestion:  " << squest.quest <<"\n";
+		cout << "\tTest Case: " << squest.tc <<"\n";
+		cout << "\tAnswer:    " << squest.ans <<"\n";
+		cout << "\n";
+		qNo++;
+	}
+	ifile.close();
+}
+
+void removeLastQ(char *grade) {
+	char fpath[100], tpath[100];
+	questc squest;
+	int	numCopied = 0;
+	snprintf(fpath, 100, "Assignments/%s.dat", grade);
+	snprintf(tpath, 100, "Assignments/%s_tmp.dat", grade);
+	ifstream ifile(fpath, ios::binary);
+	ofstream ofile(tpath, ios::binary);
+	if(!ifile) {
+		cout << "File open error\n";
+		return;
+	}
+
+	ifile.seekg (0, ifile.end);
+	int numQ = ifile.tellg()/sizeof(questc);
+	ifile.seekg (0, ifile.beg);
+
+	while(numCopied < numQ - 1) {
+		ifile.read((char*)&squest, sizeof(questc));
+		ofile.write((char*)&squest, sizeof(questc));
+		numCopied++;
+	}
+	ifile.close();
+	ofile.close();
+	remove(fpath);
+	rename(tpath, fpath);
 }
