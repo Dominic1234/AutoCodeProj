@@ -27,3 +27,13 @@ int getch() {
 	tcsetattr(STDIN_FILENO, TCSANOW, &old);
 	return c;
 }
+
+char *gets(char* buf) {
+	int index = 0;
+	char c;
+	while((c = getchar()) != '\n') {
+		buf[index++] = c;	
+	}
+	buf[index] = '\0';
+	return buf;
+}

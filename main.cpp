@@ -522,6 +522,7 @@ int getNumQuestions (char *grade) {
 	ifstream ifile(fpath, ios::binary);
 	if(!ifile){
 		cout << "Missing assignment file!\n Check path: " << fpath << endl;
+		return 0;
 	}
 	// Find out how many questions are available
 	ifile.seekg (0, ifile.end);
