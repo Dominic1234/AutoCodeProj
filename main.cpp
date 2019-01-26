@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------------*\
+| AutoCode:																|
+| A program which helps solve students solve assignments sent by their 	|
+| teachers and allows teachers to view their students’ performance.		|
+| Authors: Dhruv Sharma													|
+|	       Akif Iqbal														|
+\*_____________________________________________________________________*/
+
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -55,7 +63,6 @@ public:
 	
 	int update(stud tmp){
 		cout << "Saving...\n";
-		getch();
 		stud stcmp;
 		ifstream ifile("std.dat", ios::binary);
 		ofstream ofile("temp.dat", ios::binary);
@@ -123,7 +130,6 @@ int main_menu(){
 		cout << "\t\t\tPress e to Quit...\n";
 		cout << ">>";
 		cin >> com;
-		cout << com << endl;
 		if(com == 'l')
 			login();
 		else if(com == 's')
@@ -149,7 +155,7 @@ int signup(){								//Sign up window
 	cin >> mod;
 	system("cls");
 	if(mod == 's') {							//Student Sign-up
-		ofstream ofile("std.dat", ios::binary);
+		ofstream ofile("std.dat", ios::binary | ios::app);
 		stud stud1;
 		int count = 0;
 		char tmp;
@@ -208,7 +214,7 @@ int signup(){								//Sign up window
 		ofile.close();
 	}
 	else if(mod == 't') {						//Teacher Sign-up
-		ofstream ofile("tchr.dat", ios::binary);
+		ofstream ofile("tchr.dat", ios::binary | ios::app);
 		tchr tchr1;
 		int count = 0;
 		char tmp;
@@ -239,7 +245,21 @@ int signup(){								//Sign up window
 		tchr1.pass[count] = '\0';
 		cout << endl;
 		cout << "Confirm Password: ";
-		gets(tpass);
+		count = 0;
+		do{
+			tmp = getch();
+			if(tmp == '\b' && count > 0){
+				cout << "\b";
+				count--;
+			}
+			else if( tmp != '\b' && tmp != '\r' && tmp != '\n'){
+				cout << '*';
+				tpass[count] = tmp;
+				count++;
+			}
+		}while(tmp != '\r' && tmp != '\n');
+		tpass[count] = '\0';
+		cout << endl;
 		ofile.write((char*)&tchr1, sizeof(tchr1));
 		ofile.close();
 	}
@@ -334,7 +354,6 @@ int stud_win(stud stdtmp) {						//Student Window
 	do{
 		if (count > 0) {
 			cout << "Press any key to continue...";
-			getch();
 			getch();
 			system("cls");
 		}
